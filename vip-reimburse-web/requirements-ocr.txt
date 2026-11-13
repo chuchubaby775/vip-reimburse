@@ -1,0 +1,4 @@
+-r requirements.txt
+# Optional PaddleOCR image recognition. Python/platform must be supported by Paddle.
+paddlepaddle==3.3.1
+paddleocr==3.7.0

@@ -1,0 +1,48 @@
+name: vip-reimburse
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8765"
+      DATA_DIR: /data
+      COOKIE_SECURE: "1"
+      # Only Caddy publishes a host port, and it overwrites X-Real-IP.
+      TRUST_PROXY_HEADERS: "1"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?请在服务器的.env中配置至少12位的管理员密码}"
+      GUEST_INVITE_CODE: "${GUEST_INVITE_CODE:-01AI2026VIP}"
+      EVENT_NAME: "${EVENT_NAME:-零一万物2026西南生态大会}"
+    volumes:
+      - guest_data:/data
+      - ocr_models:/app/.runtime
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 256
+    stop_grace_period: 90s
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      APP_DOMAIN: "${APP_DOMAIN:?请先配置正式域名}"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - tls_data:/data
+      - tls_config:/config
+volumes:
+  guest_data:
+  ocr_models:
+  tls_data:
+  tls_config:

@@ -1,0 +1,5 @@
+# Core server uses Python's standard library. These enable native PDF text extraction,
+# image validation and actual Excel exports.
+pypdf>=5.0,<7
+Pillow>=11.0,<13
+openpyxl>=3.1,<4
